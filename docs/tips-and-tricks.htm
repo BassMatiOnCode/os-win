@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-10-09" editor="USP" />
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2022-11-29" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2022-11-29" />
+<meta name="version" content="1" />
+<meta name="categories" content="Operating Systems > Windows > Tips and Tricks" />
+<meta name="tags" content="OS, operating system, Windows, tip, trick." />
+<meta name="description" content="" />
+
+<link rel="stylesheet" href="/inc/page.css" />
+<link rel="stylesheet" href="/local.css" />
+<link rel="stylesheet" href="local.css" />
+ 
+<title>Windows Tips and Tricks</title>
+
+</head><body><header id="page-header"><object data="title.svg" type="image/svg+xml" style="height : 100% ; margin-left : 160px"></object></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Windows Tips and Tricks</h1>
+
+<p id="page-abstract"></p>
+
+<h2 cbc>Hard and Symbolic Links</h2><div>
+
+<p>Unix-like systems know symbolic links and hard links. So does Windows. Note that the so-called "desktop link" is a File Explorer specialty, and therefore a completely different thing.</p>
+
+<p>There is a Windows command-line tool called <tt>mklink.exe</tt> which can be used to create all sorts of links.</p>
+
+<dl>
+<dt>mklink source-file-name target-file-name</dt>
+<dd>Creates a symbolic link to a target file.</dd>
+
+<dt>mklink /D source-folder-name target-folder-name</dt>
+<dd>Creates a symbolic directory link to a target directory.</dd>
+
+<dt>mklink /H source-file-name target-file-name</dt>
+<dd>Creates a hard-link to a target file.</dd>
+
+<dt>mklink /J source-folder-name target-folder-name</dt>
+<dd>Creates a directory hard-link to a target directory, aka "junction".</dd>
+</dl>
+
+<p>A symbolic link is essentially a text file which is interpreted in a special way. A hard link is an additional directory entry pointing to a sequence of data sectors in the file system &mdash; exactly like a "regular" file. In fact, a regular file <em>is</em> a hard-link to the data sectors, with a reference count of 1. Additional hard-links to the same data sectors increase the reference count accordingly.</p>
+
+<p>This has consequences. If you want to delete an "additional" hard-link but keep the file contents, make sure that the link count is greater than 1. This can be looked up in the File Explorer in the properties of that file.</p>
+
+<p>A symbolic file or directory link can always be deleted without deleting the link target.</p>
+
+<!--h2--></div>
+
+<h2 cbc>Finding Hard-Links</h2><div>
+
+<p>Symbolic links are labeled with an arrow icon in the lower left corner of the icon in Windows File Explorer, and they are clearly marked as symlink on the command line by the <tt>dir</tt> command. Hard-links (files with a reference count &gt; 1 are not visually marked.</p>
+
+<p>To find hard links, you can run the following command on the console:</p>
+
+<pre>echo off & for /F "delims=" %A in ('dir /s /b') do echo. & fsutil hardlink list "%A"</pre>
+
+<p>A file with multiple entries has multiple references, thus "hard-links".</p>
+
+<p>The linux <tt>find</tt> command can also show files with a reference count &gt; 1. The comand is included in the <tt>MingW tools for Windows</tt>. It comes e. g. with Git:</p>
+
+<pre>"c:\program files\git\usr\bin\find.exe" *.* -links +1</pre>
+
+<p>lists the files with a reference count greater than 1.</p>
+
+<!--h2--></div>
+
+</main><footer id="page-footer"></footer><script type="module" src="/inc/page.js" ></script></body></html>

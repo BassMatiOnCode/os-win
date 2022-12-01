@@ -1,0 +1,312 @@
+﻿<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-11-29" editor="USP" />
+<meta name="author" content="USP" />
+<meta name="creation-date" content="2022-11-30" />
+<meta name="editor" content="USP" />
+<meta name="change-date" content="2022-11-30" />
+<meta name="version" content="1" />
+<meta name="categories" content="Operating Systems > Windows" />
+<meta name="tags" content="OS, operating system, Windows, organisation" />
+<meta name="description" content="A constraint machine such as the entry-level MS Surface models with only an 128 GB SSD can be a viable solution for a developer, if removable storage is cleverly taken into account. The benefit? Absolute silence. They have no fan..." />
+
+<link rel="icon" type="image/png" href="/favicon.png" sizes="16x16" />
+<link rel="stylesheet" href="/inc/page.css" />
+<link rel="stylesheet" href="/site.css" />
+
+<style>
+ul.folder-tree {
+	margin-left : -10px ;
+	}
+ul.folder-tree ul {
+	margin-left : -40px ;
+	}
+ul.folder-tree li {
+	list-style-type : none ;
+	background-repeat : no-repeat ;
+	background-size : 10px 10px, 15px 15px, 25px 25px ;
+	background-position-x : 0px, 15px, 20px;
+	background-position-y : 10px, 10px, 2px ;
+	padding-left: 50px ;
+	margin-left : -30px ;
+	}
+ul.folder-tree li {
+	background-image : url(/inc/img/blank-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/document-001.svg) ;
+	}
+ul.folder-tree li.prog {
+	background-image : url(/inc/img/blank-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/program-001.svg) ;
+	}
+ul.folder-tree li.prog.symlink {
+	background-image : url(/inc/img/blank-001.svg),url(/inc/img/symlink-001.svg),url(/inc/img/program-001.svg) ;
+	}
+ul.folder-tree li.folder {
+	background-image : url(/inc/img/blank-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/folder-001.svg) ;
+	}
+ul.folder-tree li.folder.symlink {
+	background-image : url(/inc/img/blank-001.svg),url(/inc/img/symlink-001.svg),url(/inc/img/folder-001.svg) ;
+	}
+ul.folder-tree li.info {
+	background-image : url(/inc/img/blank-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/blue-info-circle.svg) ;
+	background-size : 10px 10px, 15px 15px, 15px 15px ;
+	background-position-x : 0px, 15px, 30px;
+	background-position-y : 10px, 10px, 7px ;
+	}
+ul.folder-tree.default-collapsed li:has(ul) {
+	background-image : url(/inc/img/plus-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/folder-001.svg) ;
+	}
+ul.folder-tree.default-collapsed li.symlink:has(ul) {
+	background-image : url(/inc/img/plus-001.svg),url(/inc/img/symlink-001.svg),url(/inc/img/folder-001.svg) ;
+	}
+ul.folder-tree.default-expanded li:has(ul) {
+	background-image : url(/inc/img/minus-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/folder-001.svg) ;
+	}
+ul.folder-tree.default-expanded li.symlink:has(ul) {
+	background-image : url(/inc/img/minus-001.svg),url(/inc/img/symlink-001.svg),url(/inc/img/folder-001.svg) ;
+	}
+ul.folder-tree li.collapsed {
+	background-image : url(/inc/img/plus-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/folder-001.svg) !important;
+	}
+ul.folder-tree li.collapsed.symlink {
+	background-image : url(/inc/img/plus-001.svg),url(/inc/img/symlink-001.svg),url(/inc/img/folder-001.svg) !important;
+	}
+ul.folder-tree li.expanded {
+	background-image : url(/inc/img/minus-001.svg),url(/inc/img/blank-001.svg),url(/inc/img/folder-001.svg) !important ;
+	}
+ul.folder-tree li.expanded.symlink {
+	background-image : url(/inc/img/minus-001.svg),url(/inc/img/symlink-001.svg),url(/inc/img/folder-001.svg) !important ;
+	}
+ul.folder-tree.default-expanded li>ul {
+	display : block ;
+	}
+ul.folder-tree.default-collapsed li>ul {
+	display : none ;
+	}
+ul.folder-tree li.expanded>ul {
+	display : block ;
+	}
+ul.folder-tree li.collapsed>ul {
+	display : none ;
+	}
+.folder-tree div.info {
+	display : inline-block ;
+	position : relative ;
+	top : 1.5px ;
+	width : 15px ;
+	height : 15px ;
+	overflow : visible ;
+	background-image : url(/inc/img/blue-info-circle.svg);
+	background-repeat : no-repeat ;
+	background-size : contain ;
+	}
+</style>
+
+<title>Windows - Organizing Storage on a Constrained Machine</title>
+
+</head><body><header id="page-header"><object data="title.svg" type="image/svg+xml" style="height : 100% ; margin-left : 160px"></object></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Organizing Storage on a Constrained Machine</h1>
+
+<p id="page-abstract"></p>
+
+<h2 cbc>Overview</h2><div>
+
+<p>An overview of what's in the system:</p>
+
+<ul class="no-bullets">
+<li><em>Disk 1 (C:)</em> &ndash; system dis, fixed, with limited capacity (128 GB)</li>
+<li><em>Disk 2 (D:)</em> &ndash; removable disk in an SD card slot (512 GB)</li>
+<li><em>Disk 3 (E:)</em> &ndash; removable flash disk in an USB socket (512 GB)</li>
+<li><em>Disk 4 (F:)</em> &ndash; removable mechanical disk in an USB socket (2 TB, for data backups)</li>
+</ul>
+
+<!--h2--></div>
+
+<h2 cbc>Distribution of Software Installations</h2><div>
+
+<p>It is clear that we cannot install the whole bunch of our software tools on the system drive C. Only very small and absolutely essential installations will go on C. The others will go on drive E. Drive D is reserved for user data, and perhaps additional software if drive E runs out of disk space. Drive F is dedicated for data backup, and will be  connected when required.</p>
+
+<p>The interactive picture below illustrates the drive and folder structure on such a machine. Click on the node icons to expand or collapse the folders as required:</p>
+
+<ul class="folder-tree root default-collapsed">
+<li class="expanded">C:\ &mdash; <div class="info"></div> Fixed SSD with limited capacity
+	<ul>
+	<li class="expanded">Program Files
+		<ul>
+		<li class="expanded">Program 1
+			<ul>
+			<li>Important and/or small installation footprint</li>
+			<li class="prog">program-1.exe</li>
+			</ul></li>
+		<li class="symlink">Program 3 &rarr; E:\ProgFiles\Program 3
+			<ul>
+			<li>Less important or large installation footprint</li>
+			</ul></li>
+		</ul></li>
+	<li>Tools
+		<ul>
+		<li class="prog symlink">program-1.exe &rarr; C:\Program Files\Program 1\program-1.exe</li>
+		<li class="prog symlink">program-2.exe &rarr; E:\ProgFiles\Program 2\program-2.exe</li>
+		<li class="prog symlink">program-3.exe &rarr; C:\Program Files\Program 3 &rarr; D:\ProgFiles\Program 3\program-3.exe</li>
+		</ul></li>
+	</ul></li>
+<li>D:\ &mdash; <div class="info"></div> Removable storage (SD card)
+	<ul>
+	<li>User
+		<ul>
+		<li>User data files here</li>
+		<li>&nbsp;</li>
+		<li>&nbsp;</li>
+		</ul></li>
+	</ul></li>
+<li>E:\ &mdash; <div class="info"></div> Removable storage (USB flash memory drive)
+	<ul>
+	<li>Programs
+		<ul>
+		<li>Program 2 &larr; C:\Program Files\Program 2
+			<ul>
+			<li>Less important or large installation footprint</li>
+			<li>ProgFiles
+				<ul>
+				<li class="prog">program-2.exe</li>
+				</ul></li>
+			<li>ProgData
+				<ul>
+				<li>Configuration files</li>
+				</ul></li>
+			<li>AppDataLocal
+				<ul>
+				<li>Local user data</li>
+				</ul></li>
+			<li>AppDataRoaming
+				<ul>
+				<li>Roaming user data</li>
+				</ul></li>
+			</ul></li>
+		<li>Program 3 &larr; C:\Program Files\Program 3
+			<ul>
+			<li>Less important or large installation footprint</li>
+			<li class="prog">program-3.exe</li>
+			</ul></li>
+		</ul></li>
+	</ul></li>
+<li>F:\ &mdash; <div class="info"></div> Removable storage (External hard disk for data backups)
+	<ul>
+	<li>User
+		<ul>
+		<li class="folder">Backups</li>
+		</ul></li>
+	</ul></li>
+</ul>
+
+<p>Let's start with a standard installations on the system drive C. The installation target folder is usually <tt>C:\Program Files\Program Name</tt>. Such installations should have a rather small mass storage footprint or must be otherwise indispensible (removable storage might actually have been removed &hellip;</p>
+
+<p>Installations with a large footprint should be installed on a removable disk, for example in <tt>E:\ProgFiles\Program 2</tt>.</p>
+
+<p>Some programs refuse to be installed on removable storage. Visual Studio is an example. But these can be tricked with symbolic links:</p>
+
+<ol>
+<li>Install <tt>Program 3</tt> on the system drive <tt>C:\Program Files\Program 3</tt>.</li>
+<li>Move the installation folder to <tt>E:\ProgFiles\Program 3</tt>.</li>
+<li>Create a <em>symbolic directory link</em> <tt>C:\Program Files\Program 3</tt> that points to the moved folder on drive E.</li>
+</ol>
+
+<p>Some programs may require to use a directory hard-link ("junction") instead of a directory symlink.</p>
+
+<p>Alternatively, the directory symlinks can be created on beforehand or when the installer is running and shows the installation folders. The advantage is that you don't have to move the installed folders manually.</p>
+
+<!--h2--></div>
+
+<h2 cbc>Shortcuts and the <tt>Path</tt> Environment Variable</h2><div>
+
+<p>If you work with the command line frequently, you should add the path to your tool folders to the <tt>Path</tt> environment variable. Then you can forget where the tool is installed and just have to remember the name. But the more tools you install, the larger the path variable grows and the harder is it to keep the content clean.</p>
+
+<p>This is what the <tt>C:\Tools</tt> folder is for. This is the single location where symlinks to your tools are stored. Now it requires exactly <em>one</em> entry in the <tt>Path</tt> to find all your tools.</p>
+
+<p>So, fire up a console window and execute the following commands:</p>
+
+<figcaption class="listing">Instructions</figcaption>
+<pre>
+mkdir c:\tools
+cd /d d:\tools
+mklink program-2.exe "e:\progfiles\program 2\program-2.exe"
+</pre>
+
+<p>Then add <tt>c:\tools</tt> to the path evironment variable.</p>
+
+<!--h2--></div>
+
+<h2 cbc>Program Data, AppData</h2><div>
+
+<p>Besides the program installation folders, an installer often creates configuration and user-related operational data on the system drive. Check the following locations:</p>
+
+<ul class="folder-tree root default-expanded">
+<li>C:\>
+	<ul>
+	<li>Program Data
+		<ul>
+		<li class="folder symlink">Program 2 %</li>
+		<li class="folder symlink">Program 3</li>
+		</ul></li>
+	<li>Users
+		<ul>
+		<li>User
+			<ul>
+			<li>AppData
+				<ul>
+				<li>Local
+					<ul>
+					<li class="folder symlink">Program 2</li>
+					<li class="folder symlink">Program 3</li>
+					</ul></li>
+				<li>Roaming
+					<ul>
+					<li class="folder symlink">Program 2</li>
+					<li class="folder symlink">Program 3</li>
+					</ul></li>
+				</ul></li>
+			</ul></li>
+		</ul></li>
+	</ul></li>
+</ul>
+
+<p>These folders should also be moved to drive E, a symlink on drive C then points to the new location.</p>
+
+<!--h2--></div>
+
+<h2 cbc>Sharing Installations</h2><div>
+
+<p>Program installations can be shared between machines:</p>
+
+<ol>
+<li>Bring drive E to machine B.</li>
+<li>Create the symlinks on the system drive C to the program files, program data and app data folders on drive E.</li>
+<li>Start the installation, using the symlink folders on drive C.</li>
+</ol>
+
+<!--h2--></div>
+
+</main><footer id="page-footer"></footer><script type="module" src="/inc/page.js" ></script>
+<script id="collapsible-folder-tree" type="module">
+
+// Clicks on the plus minus icon collapse and expand folders.
+
+document.querySelectorAll( ".folder-tree" ).forEach( e => {
+	// Add click event handler
+	e.addEventListener( "click", function( evt ) {
+		if ( evt.target && evt.target.tagName === "LI" && evt.offsetX < 18 && evt.offsetY < 20 ) {
+			// Toggle nested list visibility if there is one.
+			if( evt.target.querySelector( "ul" )) evt.target.classList.toggle( this.classList.contains( "default-expanded" ) ? "collapsed" : "expanded" );
+			evt.preventDefault( );
+			evt.stopPropagation( );
+			}
+		} ) ; 
+	// Add doubleclick event handler
+	e.addEventListener( "dblclick", evt => {
+		evt.stopPropagation( );
+		evt.preventDefault( );
+		} ) ;
+	} ) ;
+</script>
+</body></html>

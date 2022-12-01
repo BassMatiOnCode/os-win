@@ -1,0 +1,3 @@
+mklink access denied
+	secpol.msc, Local Policies\User Rights Assignment\Create Symbolic Links
+	Add the user to the list

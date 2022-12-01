@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="template-info" file-name="empty.htm" version="2022-01-17" editor="usp" />
+<meta name="author" content="usp" />
+<meta name="creation-date" content="2021-10-17" />
+<meta name="editor" content="usp" />
+<meta name="change-date" content="2021-10-17" />
+<meta name="version" content="1" />
+<meta name="categories" content="Operating Systems > Windows > Troubleshooting > Installation" />
+<meta name="tags" content="windows, bootrec, fixboot, access denied." />
+<meta name="description" content="Recipes for bootrec /fixboot access denied problem." />
+
+<link rel="stylesheet" href="/inc/page.css" />
+ 
+<title>Troubleshoot - Windows Installation - bootrec fixboot</title>
+
+</head><body><header id="page-header"></header><div id="main-toolbar"></div><main id="page-content">
+
+<h1>Bootrec fixboot access denied</h1>
+
+<p>File:\BCD  Error code: 0xc0000034</p>
+
+<p id="page-abstract"></p>
+
+<h2 cbc>Step 1 &ndash; Windows Recovery Console</h2><div>
+
+<ol>
+<li>Prepare a Windows installation disk or USB memory stick.</li>
+<li>Boot the computer from the installation disk.</li>
+<li>Navigate to <tt>Repair your computer</tt> &lt; <tt>Troubleshoot</tt> &lt; <tt>Advanced</tt> &lt; <tt>Command prompt</tt>.</li>
+</ol>
+
+<!-- h2 --></div>
+
+<h2 cbc>Diskpart</h2><div>
+
+<p>Start the <tt>diskpart</tt> command in the Windows recovery console.</p>
+<pre><code>
+DISKPART> list disk<cc>	
+    Disk ###  Status         Size     Free     Dyn  Gpt
+    --------  -------------  -------  -------  ---  ---
+    Disk 0    Online          931 GB  1024 KB        *
+    Disk 1    Online          366 GB      0 B        *
+    Disk 2    Online          366 GB    31 MB
+    </cc>
+</code></pre>
+
+<p>Identify the system disk for the the Windows operating system. In my case, this is disk 0.</p>
+
+<p>Next, identify the volumes on the OS disk:</p>
+
+<pre><code>
+DISKPART> sel disk 0
+<cc>Disk 0 is now the selected disk.</cc>
+DISKPART> list vol<cc>
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 0     Z                       DVD-ROM         0 B  No Media
+  Volume 1     C                NTFS   Partition    930 GB  Healthy    Boot
+  Volume 2                      FAT32  Partition    100 MB  Healthy    System
+  Volume 3                      NTFS   Partition    499 MB  Healthy    Hidden
+  Volume 4     D   SY-SDXC400G  NTFS   Removable    366 GB  Healthy
+  Volume 5     E   SY-SDXC400G  NTFS   Removable    366 GB  Healthy
+    </cc>
+</code></pre>
+
+<p>Volume 1 is the NTFS boot partition. Volume 2 is a 100 MB FAT32 System partition. This is the EFI partition. Then we have a hidden 500 MB NTFS partition on Volume 3. This might be the Windows recovery partition.</p>
+
+<!-- h2 --></div>
+
+<h2 cbc>Step 3 &ndash; Recreating the EFI Partition</h2><div>
+
+<p>After identifying the EFI partition's volumne number (2 in my case), assign a drive letter to the partion (S: in my case):</p>
+
+<pre><code>
+sel vol 2
+format fs=fat32 quick
+assign letter=N:
+exit
+</code></pre>
+
+<p>Now we will use the <tt>bcdboot</tt> tool:</p>
+
+<pre><code>
+bcdboot C:\Windows /s N: /f UEFI
+bootrec /fixboot
+</code></pre>
+
+<p>This command will repair the bootloader.</p>
+
+
+<!-- h2 --></div>
+
+<h2 cbc>Step 2 &ndash; </h2>
+
+<figcaption class="listing">Bootrecord repair commands</figcaption>
+<pre>
+bootrec /RebuildBcd
+	ok
+	installations: 0
+bootrec /fixMbr
+	ok
+bootrec /scanos
+	?
+bootrec /fixboot
+	error: access denied
+</pre>
+
+<h2 cbc>References</h2><div>
+
+<dl class="link-list">
+<dt><a href="https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/diskpart">diskpart</a> documentation on docs.microsoft.com</dt>
+</dl>
+
+<!-- h2 --></div>
+
+</main><script type="module" src="/inc/page.js" ></script></body></html>
