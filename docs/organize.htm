@@ -277,13 +277,76 @@ mklink program-2.exe "e:\progfiles\program 2\program-2.exe"
 
 <h2 cbc>Sharing Installations</h2><div>
 
-<p>Program installations can be shared between machines:</p>
+<p>Portable installations are a no-brainer. Just install on a removable storage disk, provide a link or batch file in <tt>C:\Tools</tt> and make sure to have that folder in your <tt>path</tt>.</p>
+
+<p>Non-portable program installations <em>can</em> be shared between machines, but that needs that <em>all</em> application-related folders must be moved to an external drive. That needs a little bit of Sherlock Holmes to find them.</p>
+
+<p>User-related files in the <tt>AppData</tt> folder appear to be an exception, but sometimes whole apps are installed in <tt>C:\Users\User\AppData</tt>.</p>
+
+<p>The steps are the same for each folder:</p>
 
 <ol>
-<li>Bring drive E to machine B.</li>
-<li>Create the symlinks on the system drive C to the program files, program data and app data folders on drive E.</li>
-<li>Start the installation, using the symlink folders on drive C.</li>
+<li>Open a command prompt and change to the parent folder:
+<pre>cd parent-folder</pre></li>
+
+<li>Make sure your console is "elevated" if you are in a protected folder:
+<pre>gsudo</pre></li>
+
+<li>If a folder with the same name already exists on drive E:, the source folder <strong>must be renamed</strong>, otherwise you can omit this step:
+<pre>ren source-folder renamed-folder</pre></li>
+
+<li>Move the renamed folder to to the external drive:
+<pre>move "renamed-folder" "e:\progs\program-name\"</pre></li>
+
+<li>Create a symbolic directory link with the original (!) source folder name and link to the new location:
+<pre>mklink /D "source-folder" "e:\progs\program-name\renamed-folder"</pre></li>
 </ol>
+
+<p>This procedure ensures that the chain of folders to the installation files appears not to have changed.</p>
+
+<p>The following directory structure on drive E is recommended:</p>
+
+<ul style="list-style-type:disc">
+<li>Programs
+	<ul style="list-style-type:inherit">
+	<li>ProgramName
+		<ul style="list-style-type:inherit">
+		<li style="list-style-type:circle">link-info.txt</li>
+		<li>ProgramFiles</li>
+		<li>ProgramFiles86</li>
+		<li>ProgramData</li>
+		<li>User-AppData-Local</li>
+		<li>User-AppData-Roaming</li>
+		<li>User-DotFolder</li>
+		<li>User-ProgramName</li>
+		<li>User-Documents</li>
+		<li>et cetera</li>
+		</ul></li>
+	</ul></li>
+</ul>
+
+<p>Folders are created as required.</p>
+<p>It is recommended to make notes on the location of symbolic links that reference these folders. This information can be used to create an installation of a second machine.</p>
+
+<p>As already mentioned, finding folders related to an installation is not a simple task, but there are some pointers:</p>
+
+<ol>
+<li>The 64-bit program installation folder <tt>C:\Program Files\program-name</tt></li>
+<li>The 32-bit program installation folder <tt>C:\Program Files (x86)\program-name</tt></li>
+<li>Other folders under <tt>C:\Program Files\vendor-name</tt> and <tt>C:\Program Files (x86)\vendor-name</tt></li>
+<li>Search for vendor-name and program-name in <tt>C:\ProgramData</tt>, <tt>C:\Users\user-name\AppData</tt>, <tt>C:\Users\user-name\Documents</tt>, <tt>C:\Users\user-name\program-name</tt> and in other suspicious folders in <tt>C:\Users\user-name</tt>.</li>
+<li>Sometimes there is some bundled software that is needed by a program, such as a license service. Move that installation in the similar fashion.</li>
+</ol>
+
+<p>When done, test the installation for a while. If everything works as before, bring the external disc to the other machine. Then</p>
+
+<ol>
+<li>Create the symbolic links according to your notes in <tt>link-info.txt</tt>. If you already have an installation on the target machine, delete the folders and replace them with symbolic directory links.</li>
+<li>If a program came with an installer, run that on the new machine. If available, start a <em>repair</em>. Chances are that registry entries will have to be created, and existing installation files will be overwritten, which is perfectly fine.</li>
+</ol>
+
+<p>That's it. Now test the installation on the new machine.</p>
+
 
 <!--h2--></div>
 
