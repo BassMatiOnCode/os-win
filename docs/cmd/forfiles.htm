@@ -1,0 +1,20 @@
+<html><head>
+
+</head><body>
+
+<h1>ForFiles</h1>
+
+<h2 cbc>Examples</h2></div>
+
+<pre>forfiles /s /m *.* /d -10 /c "cmd /c echo @path"</pre>
+
+<p>Searches recursively (/s) for files matching (/m) the pattern modified (/d) 10 days ago or earlier, then execute a command (/c) to print the path.</p>
+
+<pre>forfiles /s /m *.* /d +17/10/2025 /c "cmd /c echo @path"</pre>
+
+<p>Searches recursively (/s) for files matching (/m) the pattern modified (/d) after the specified date, then execute a command (/c) to print the path.</p>
+
+
+<!--h2--Examples--></div>
+
+</body></html>

@@ -1,0 +1,97 @@
+<html><head>
+
+<style>
+pre { color :  green }
+</style>
+
+</head><body>
+
+<h1>MTU Size Reduction</h1>
+
+<p>O2 in Germany has an MTU Limit of 1480 bytes. This can be verified with this ping command:</p>
+
+<pre>ping -f -l 1452 google.com</pre>
+
+<p>The buffer size plus 20 bytes IP header plus 8 bytes ICMP echo request header is the MTU size, 1480.</p>
+<p>To set this value, find the network interface:</p>
+
+<pre>netsh interface show interface</pre>
+
+<p>It shows</p>
+
+<pre>
+Admin State    State          Type             Interface Name
+-------------------------------------------------------------------------
+Enabled        Connected      Dedicated        <hi>WLAN</hi>
+Enabled        Connected      Dedicated        <hi>LAN-Verbindung* 2</hi>
+Enabled        Connected      Dedicated        vEthernet (WSL)
+</pre>
+
+<p>Note that the interface names can change.</p>
+
+<p>The interface name for the WiFi hotspot is "WLAN". Now we can set the MTU size:</p>
+
+<pre>
+netsh interface ipv4 set subinterface "WLAN" mtu=1480 store=persistent
+netsh interface ipv6 set subinterface "WLAN" mtu=1480 store=persistent
+</pre>
+
+<p>The minimum MTU size vor an ipv6 interface seems to be 1280 (found on SY-SF1). For ipv4, it was possible set the MTU size to 1024.</p>
+
+<p>To check the current setting, run</p>
+
+<pre>
+netsh interface ipv4 show subinterfaces
+netsh interface ipv6 show subinterfaces
+</pre>
+
+<p>It shows</p>
+
+<pre>
+   MTU  MediaSenseState   Bytes In  Bytes Out  Interface
+------  ---------------  ---------  ---------  -------------
+4294967295 1             0          467760     Loopback Pseudo-Interface 1
+  1480  1                6102518    2039850    WLAN
+  1500  5                0          0          Bluetooth-Netzwerkverbindung
+  1500  5                0          0          LAN-Verbindung* 1
+  1500  1                0          95226      LAN-Verbindung* 2
+  1500  1                56412      40953      vEthernet (WSL)
+</pre>
+
+<p>To verify that this setting is inherited by WSL/Alpine or WSL/Debian, run this command:</p>
+
+<pre>ip link show</pre>
+
+<p>Look for the number following "MTU". If they don't match after a reboot, run this command in WSL/Alpine:</p>
+
+<pre>sudo ip link set dev eth0 mtu 1480</pre>
+
+<p>To runs this command automatically, append this command to <tt>~/.profile</tt>. Although, this requires to enter the sudo password on every startup. A better way is to create a script <tt>/etc/network/if-up.d/sync-mtu</tt> with the follwing content:</p>
+
+<pre>
+#!/bin/sh
+
+# 1. Get the MTU from the Windows Host (specifically the 'vEthernet' adapter WSL uses)
+# We filter for the interface that typically handles the WSL traffic
+WIN_MTU=$(powershell.exe -Command "(Get-NetIPInterface -AddressFamily IPv4 | Where-Object { \$_.InterfaceAlias -like '*WSL*' -or \$_.InterfaceAlias -like '*vEthernet*' } | Select-Object -First 1).NlMtu" | tr -d '\r')
+
+# 2. If we found a value, apply it to eth0
+if [ ! -z "$WIN_MTU" ]; then
+    ip link set dev eth0 mtu $WIN_MTU
+    echo "Syncing MTU to Windows Host: $WIN_MTU"
+fi
+</pre>
+
+<p>Then make that executable:</p>
+
+<pre>sudo chmod +x /etc/network/if-up.d/sync-mtu</pre>
+
+<p>The script runs a powershell script to find the MTU size of the host OS and sets this value on the <tt>eth0</tt> interface.</p>
+
+<p>Fortunately, this was not necessary on W10.</p>
+
+
+
+
+
+</body></html>

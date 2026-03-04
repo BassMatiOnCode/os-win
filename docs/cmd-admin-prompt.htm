@@ -1,0 +1,23 @@
+<html><head lang="en-us">
+
+<title>CMD Admin Prompt</title>
+
+</head><body>
+
+<h1>CMD Admin Prompt</h1>
+
+<p>This script sets the color of the admin prompt to red:</p>
+
+<pre>
+@echo off
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    PROMPT $E[1;31m$P#$E[0m 
+)
+</pre>
+
+<p>The <tt>net session</tt> command sets <tt>errorlevel=2</tt> if executed as non-admin user. This condition is used to set the color of the prompt to E[1;31m (red). At the end, the color is reset to E[0m (white).</p>
+
+<p>The path the the script has to be to set in the registry path <tt>Computer\HKEY_CURRENT_USER\SOFTWARE\Microsoft\Command Processor</tt>, <tt>AutoRun=c:\tools\adminPromptString.bat</tt>.</p>
+
+</body></html>

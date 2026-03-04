@@ -1,0 +1,14 @@
+<html><body>
+
+<h1>Files and Directories</h1>
+
+<p>To get the current directory name, use</p>
+
+<pre>
+for %%a in (.) do set currentfolder=%%~nxa
+echo %currentfolder%
+</pre>
+
+<p>Note not to add extra spaces at the end fo the line, as they will be used in the assignment and spoil the result.</p>
+
+</body></html>

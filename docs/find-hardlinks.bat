@@ -1,0 +1,1 @@
+"C:\Program Files\Git\usr\bin\find.exe" *.* -links +1
