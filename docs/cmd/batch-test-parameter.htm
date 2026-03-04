@@ -1,0 +1,77 @@
+<html><body>
+
+<h1>Test a Batch File Parameter</h1>
+
+<p>The following content appeared on Stackoverflow in <a href="https://stackoverflow.com/questions/2541767/what-is-the-proper-way-to-test-if-a-parameter-is-empty-in-a-batch-file">What is the proper way to test if a parameter is empty in a batch file?</a>.</p>
+
+<pre>
+IF "%~1" == "" GOTO SomeLabel
+</pre>
+
+<p>The tilde strips the outer set of quotes if they are present. Works even if the parameter contains spaces.</p>
+
+<pre>
+IF if #%1#==## GOTO SomeLabel
+IF [%1]==[] GOTO SomeLabel
+</pre>
+
+<p>This works only if the parameters does not contain spaces. So the previous approach is better in general.</p>
+
+<p>One of the best semi solutions is to copy %1 into a variable and then use delayed expansion, as delayedExp. is always safe against any content.</p>
+
+<pre>
+SET "P1=%~1"
+SETLOCAL EnableDelayedExpansion
+IF "!P1!"=="" ( ECHO it is empty )
+rem ... or use the DEFINED keyword now
+IF DEFINED P1 ECHO There is something
+</pre>
+
+<p>The advantage of this is that dealing with param1 is absolutly safe. And the setting of param1 will work in many cases, like</p>
+
+<pre>
+test.bat hello"this is"a"test
+test.bat you^&me
+</pre>
+
+<p>But it still fails with strange contents like</p>
+
+<pre>
+test.bat ^&"&
+</pre>
+
+<h2>Exploiting Non-Breading CALL Failure</h2>
+
+<p>It detects if %1 is empty, but for some content it can't fetch the content. This can be also be useful to distinguish between an empty %1 and one with "". It uses the ability of the CALL command to fail without aborting the batch file:</p>
+
+<pre>
+@ECHO off
+SETLOCAL EnableDelayedExpansion
+SET "arg1="
+CALL set "arg1=%%1"
+
+IF DEFINED arg1 GOTO :arg_exists
+
+SET "arg1=#"
+CALL SET "arg1=%%1"
+IF "!arg1!" EQU "#" (
+    ECHO arg1 exists, but can't assigned to a variable
+    REM Try to fetch it a second time without quotes
+    (CALL SET arg1=%%1)
+    GOTO :arg_exists
+)
+
+ECHO arg1 is missing
+EXIT /b
+
+:arg_exists
+ECHO arg1 exists, perhaps the content is '!arg1!'
+</pre>
+
+<h2>See Also</h2>
+
+<dl>
+<dt><a href="https://stackoverflow.com/q/4200316/463115">How to receive even the strangest command line parameters?</a></dt>
+</dl>
+
+</body></html>

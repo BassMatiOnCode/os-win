@@ -1,0 +1,18 @@
+<html><body>
+
+<h1>Parameters and Variables</h1>
+
+<p>The expression <tt>%1</tt> references the first command line parameter.</p>
+
+<p>The expression <tt>%VariableName%</tt> references a variable.</p>
+
+<p>To test for an empty variable use</p>
+
+<pre>
+SET a=foo
+IF NOT DEFINED %a% ECHO You won't see this because a is defined
+IF NOT DEFINED %b% ECHO You will see this because b is not defined
+</pre> 
+
+
+</body></html>

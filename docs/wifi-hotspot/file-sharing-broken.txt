@@ -1,0 +1,184 @@
+Gemini
+Conversation with Gemini
+I have two computers, one (1) running a Wifi hotspot and shares its internet connection, the second one (2) is connetced via WiFi to this hotspot. I can access network shares on (2) from (1), but cannot access shares on (1) from (2). What's going wrong here?
+
+That's a common issue related to how Windows Wifi Hotspots (or similar features on other operating systems) are configured, specifically regarding firewalls and network type.
+
+Here's a breakdown of what's likely going wrong and how to fix it:
+
+🚧 The Problem: Network Isolation and Firewall
+When Computer (1) creates a Wifi Hotspot, it often acts as a mini-router, putting the two devices on different logical network segments and enforcing security policies.
+
+Computer (1) → Computer (2) (Works): Computer (1) is the host or server in this setup. It initiated the connection and likely has its firewall rules configured to allow outgoing traffic to the subnet it created for the hotspot, allowing it to "see" and access the shares on (2).
+
+Computer (2) → Computer (1) (Fails): This is where the issue lies. Computer (1)'s built-in Firewall (like Windows Defender Firewall) is almost certainly blocking incoming requests for file sharing (like SMB traffic on ports 139 and 445) from the new Hotspot interface. This is a default security setting, as the hotspot network is often treated as a public or less-trusted network.
+
+🛠️ Solutions (Try in order)
+1. Change Network Profile on Computer (1) (Most likely fix)
+If Computer (1) is running Windows, it categorized the hotspot's virtual network interface as Public, which has the most restrictive firewall settings. You need to change it to Private.
+
+On Computer (1), go to Settings → Network & Internet → Properties (of the active connection or the virtual Wi-Fi adapter used for sharing).
+
+Under Network profile type, switch it from Public to Private.
+
+Note: If you're using the built-in "Mobile Hotspot" feature in Windows, it can sometimes be tricky to change this setting directly, as the OS strictly enforces the network type. If you can't change it, proceed to Solution 2.
+
+2. Check/Modify Firewall Rules on Computer (1)
+If setting the profile to Private doesn't work (or isn't possible):
+
+On Computer (1), search for and open Windows Defender Firewall with Advanced Security.
+
+In the left pane, click on Inbound Rules.
+
+Scroll down and look for rules related to File and Printer Sharing (SMB).
+
+You should see several entries, often categorized by Profile (Domain, Private, Public). Ensure the rules for "File and Printer Sharing (SMB-In)" for the Private profile are Enabled (they usually are).
+
+Crucially: If the network profile is stuck on Public, you will need to enable the Public profile's corresponding "File and Printer Sharing (SMB-In)" rule.
+
+Alternatively, a safer approach is to create a new Inbound Rule allowing TCP ports 139 and 445 only for the specific IP range used by the hotspot network.
+
+3. Ensure File Sharing is Enabled on Computer (1)
+Double-check the basics on the sharing machine:
+
+On Computer (1), search for Manage advanced sharing settings.
+
+Under the Private profile (and the Public profile if the network is stuck on Public):
+
+Ensure "Turn on network discovery" is selected.
+
+Ensure "Turn on file and printer sharing" is selected.
+
+After applying these steps, the firewall on Computer (1) should allow the incoming file sharing traffic from Computer (2), resolving your issue.
+
+Would you like instructions for finding the network profile settings for a specific version of Windows?
+
+That didn't work out. File sharing and firewall rules on both computers were set up correctly. An additional information that might help you, is that computer 1 (the one running the Wifi hotspot), is connected to the internet via mobile phone and USB tethering.
+
+This is an excellent piece of additional information. Since you've confirmed that the firewall and file sharing rules are correct, the issue is almost certainly a fundamental design limitation or hardened security policy enforced by the Windows Mobile Hotspot feature itself, especially when the internet source is USB tethering.
+
+Here's why Computer (1) (Host) can see (2) (Client), but (2) cannot see (1):
+
+🔒 The Problem: Host Isolation in Mobile Hotspot
+The Windows Mobile Hotspot feature uses Internet Connection Sharing (ICS), but it's specifically designed to act as a secure network edge. It prioritizes getting the client (Computer 2) internet access while often enforcing client isolation and host isolation to prevent connected devices from accessing resources on the host (Computer 1).
+
+Client Isolation (Normal Routers): This prevents Computer (2) from talking to any other hypothetical client connected to the hotspot.
+
+Host Isolation (Windows Hotspot): This is the key. By default, the Windows Firewall rules for the virtual hotspot adapter (vEthernet or similar) are extremely restrictive. Even if you've allowed "File and Printer Sharing" for the Private profile, the Hotspot feature might force the connection profile to Public for its virtual interface, or it may use a hidden, non-standard configuration that overrides the usual UI settings to block incoming traffic (SMB on ports 139 and 445) from the client network.
+
+Why Your Setup Works One Way
+Computer (1) → Computer (2): This is an outbound connection from the host, which is generally allowed by default. Computer (1) is initiating the communication, and Computer (2) is simply responding, allowing the host to read the share.
+
+Computer (2) → Computer (1): This is an inbound connection request to the host. The host's Mobile Hotspot firewall/policy sees this request for SMB traffic and drops it to protect the host machine from the connected client.
+
+✅ Advanced Troubleshooting Steps
+Since standard fixes didn't work, here are the advanced steps necessary to force the connection:
+
+1. Try Connecting by IP Address (Bypass Name Resolution)
+If you haven't already, try connecting to the share on Computer (1) using its Hotspot IP address instead of its network name. This eliminates any potential issues with Name Resolution (LLMNR/NBNS), which is often blocked on these isolated networks.
+
+On Computer (1), open Command Prompt and type ipconfig.
+
+Find the IP address listed under the adapter that says "Wireless Local Area Connection #" or "vEthernet" (this is the one used by the Mobile Hotspot, it often starts with 192.168.137.1 or similar). Let's say it's 192.168.137.1.
+
+On Computer (2), open File Explorer and in the address bar, type: \\192.168.137.1
+
+2. Explicitly Create an Inbound Firewall Rule on Computer (1)
+The built-in rules may be configured to allow file sharing only for the 'Private' or 'Domain' profiles. You need a rule that specifically allows SMB traffic from the hotspot's subnet.
+
+On Computer (1), search for "Windows Defender Firewall with Advanced Security".
+
+Click Inbound Rules → New Rule...
+
+Select Port → Next.
+
+Select TCP and enter 445 as the specific local port → Next.
+
+Select Allow the connection → Next.
+
+Ensure Domain, Private, and Public are checked → Next.
+
+For Scope, under "Which remote IP addresses does this rule apply to?", select "These IP addresses".
+
+Click Add and enter the Subnet Range used by the hotspot (e.g., 192.168.137.0/24). → Next.
+
+Name the rule something descriptive (e.g., "Allow SMB from Hotspot Client") and click Finish.
+
+This explicitly forces the firewall to allow the necessary inbound traffic, bypassing the default restrictive Mobile Hotspot policies.
+
+You can find more detailed instructions on how to use the Mobile Hotspot feature in Windows 10/11 if you need them.
+
+You can find more information about Mobile Hotspot issues in this video: Mobile Hotspot Not Working in Windows 11/10 FIX.
+
+Mobile Hotspot Not Working in Windows 11/10 FIX - YouTube
+MDTechVideos · 110K views
+
+
+I can confirm that the problem is computer 1 running the Wifi hotspot. When I change the configuration so that the mobile phone runs the Wifi hotspot and computers 1 and 2 act as hotspot clients, file sharing immediately works on both computers in both directions.
+
+Your confirmation that file sharing works when the mobile phone runs the hotspot and both computers are clients is the key piece of evidence. It definitively confirms that the Windows Mobile Hotspot feature on Computer (1) is the source of the problem, specifically due to its built-in, non-standard security policies.
+
+🔑 The Root Cause: Hardened Host Isolation
+The Windows Mobile Hotspot feature is designed primarily for Internet Connection Sharing (ICS) and defaults to an extremely secure configuration. This is sometimes called Host Isolation, which is similar to AP Isolation on a router.
+
+This design blocks inbound traffic (like SMB/File Sharing requests) directed at the host (Computer 1) from its own virtual hotspot network, even if you've set the profile to Private or enabled standard firewall rules.
+
+When the Phone is the Host: The phone's Android/iOS hotspot creates a standard Wi-Fi network that treats all clients (Comp 1 and Comp 2) as peers on the same local subnet, allowing traffic between them.
+
+When Computer (1) is the Host: It uses its own internal security logic to protect itself from its clients. The inbound SMB traffic from Computer (2) on the hotspot network is seen as a high-risk connection and is silently dropped by the internal firewall settings associated with the virtual hotspot adapter.
+
+⚙️ Solution: Forcing the Connection by IP
+Since the standard rules failed, the most reliable workaround involves creating a very specific, manual firewall override rule targeting the Hotspot's local IP address and the exact file sharing port.
+
+If you haven't done so, you must try the two steps below exactly:
+
+1. Connect using the Hotspot Adapter's IP Address
+You need to know the specific IP that Computer (1) assigned to itself on the hotspot network (it's often 192.168.137.1 but can vary).
+
+On Computer (1), open Command Prompt and run:
+
+Bash
+ipconfig
+Look for the adapter created by the hotspot (it might be labeled "Wireless Local Area Connection" followed by a number, or "vEthernet"). Note its IPv4 Address (e.g., 192.168.137.1).
+
+On Computer (2), open File Explorer and connect to the share using that exact IP address:
+
+\\<IP_ADDRESS_OF_COMP_1>
+(e.g., \\192.168.137.1)
+
+2. Create a Highly Specific Inbound Firewall Rule on Computer (1)
+This rule forces the Windows Firewall to accept File Sharing traffic (SMB, port 445) from the specific subnet created by the Mobile Hotspot.
+
+On Computer (1), open Windows Defender Firewall with Advanced Security.
+
+In the left pane, select Inbound Rules.
+
+Click New Rule... in the right pane.
+
+Select Port → Next.
+
+Select TCP and enter 445 for specific local ports → Next.
+
+Select Allow the connection → Next.
+
+Ensure Domain, Private, and Public are all checked → Next.
+
+For Scope, under "Which remote IP addresses does this rule apply to?", select "These IP addresses".
+
+Click Add and enter the Subnet Range used by your hotspot (e.g., 192.168.137.0/24). If you only know the host IP, try entering a single address range for the client's IP, but the subnet is better. → Next.
+
+Name the rule ("Allow SMB Hotspot") and click Finish.
+
+This explicit, custom rule is necessary to bypass the default security layer of the Windows Mobile Hotspot that often blocks the inbound SMB port 445, even when general file sharing is enabled.
+
+If you're still having trouble getting the mobile hotspot to work as expected, you can get some ideas from a video discussing how to disable the mobile hotspot feature in Windows, as the same advanced settings that disable it might reveal the core restrictions. Disable Mobile Hotspot in Windows 10/11 can help you find where the system-level restrictions on Internet Connection Sharing (ICS) are being enforced.
+
+How to Disable Mobile Hotspot in Windows 10/11 by Blocking Internet Connection Sharing on DNS Domain - YouTube
+mikbes · 12K views
+
+
+
+
+
+Gemini can make mistakes, including about people, so double-check it. Your privacy & GeminiOpens in a new window
+
